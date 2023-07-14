@@ -1,0 +1,128 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script type="text/javascript" src="lib/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/osql.js"></script>
+
+    
+
+    <script>
+        
+        return new Promise((resolve, reject) => {
+            const buttons = document.getElementsByClassName("choice-button");
+    
+            // ボタンがクリックされた時の処理
+            const handleClick = (event) => {
+                const userChoice = parseInt(event.target.dataset.choice);
+                resolve(userChoice);
+            };
+
+            // ボタンにイベントリスナーを追加
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].addEventListener("click", handleClick);
+            }
+        });
+
+
+        function getComputerChoice() {
+            return Math.floor(Math.random() * 3);
+        }
+
+        function determineWinner(userChoice, computerChoice) {
+            if (userChoice === computerChoice) {
+                return "引き分け";
+            } else if ((userChoice === 0 && computerChoice === 1) || 
+                    (userChoice === 1 && computerChoice === 2) || 
+                    (userChoice === 2 && computerChoice === 0)) {
+                return "あなたの勝ち";
+            } else {
+                return "コンピュータの勝ち";
+            }
+        }
+
+        function updateResult(result) {
+            const resultElement = document.getElementById("result");
+            resultElement.textContent = "結果: " + result;
+        }
+
+        function playAgain() {
+            return new Promise((resolve, reject) => {
+                const playAgainButton = document.getElementById("play-again");
+    
+            // 再プレイボタンがクリックされた時の処理
+            const handleClick = () => {
+                resolve();
+            };
+
+            // ボタンにイベントリスナーを追加
+            playAgainButton.addEventListener("click", handleClick);
+            });
+        }
+
+        async function main() {
+            alert("=== じゃんけんゲーム ===");
+
+            while (true) {
+                // ユーザーの選択を待機
+                const userChoice = await getUserChoice();
+
+                // コンピュータの選択を取得
+                const computerChoice = getComputerChoice();
+
+                alert("あなたの選択: " + userChoice);
+                alert("コンピュータの選択: " + computerChoice);
+
+                // 勝敗を判定
+                const result = determineWinner(userChoice, computerChoice);
+                alert("結果: " + result);
+                updateResult(result);
+
+                // 再プレイするか確認
+                await playAgain();
+                const resultElement = document.getElementById("result");
+                resultElement.textContent = "";
+
+                // ボタンのイベントリスナーを削除
+                const buttons = document.getElementsByClassName("choice-button");
+                for (let i = 0; i < buttons.length; i++) {
+                    buttons[i].removeEventListener("click", handleClick);
+                }
+            }
+        }
+
+main();
+
+
+    
+
+
+
+        
+
+    </script>
+
+</head>
+
+<body>
+<button class="choice-button" data-choice="0">グー</button>
+<button class="choice-button" data-choice="1">チョキ</button>
+<button class="choice-button" data-choice="2">パー</button>
+<p id="result"></p>
+<button id="play-again">もう一度プレイする</button>
+
+</body>
+
+</html>
+
+
+
+
