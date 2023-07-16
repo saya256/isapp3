@@ -9,35 +9,122 @@
     <script type="text/javascript" src="lib/osql.js"></script>
 
     <script>
-        osql.requireLogin();
+        // osql.requireLogin();
 
-        $(document).ready(async function () {
-            var me = await osql.getMe();
-            console.log(me);
-            var sql = `insert ignore into Users values('${me.id}', '${me.fname}', '${me.lname}');`;
-            await osql.connect(sql);
+        document.getElementById("start-button").addEventListener("click", startGame);
 
-            document.getElementById('firstname').innerHTML = me.fname;
-            document.getElementById('lastname').innerHTML = me.lname;
-        });
+        var me;
+        const choices = ["グー", "チョキ", "パー"];
+        let playerPoints = 0;
+        let computerPoints = 0;
+        let currentSet = 1;
 
-        function logout() {
-            osql.logout();
+        function startGame() {
+            document.getElementById("start-button").disabled = true;
+            playGame();
         }
+
+        function playGame() {
+            console.log("=== 後だしじゃんけんゲーム ===");
+            console.log(`セット ${currentSet}`);
+
+            console.log("コンピュータが手を出しています...");
+            const computerChoice = getRandomChoice();
+
+            setTimeout(() => {
+                console.log("あなたの番です！じゃんけんの手を選んでください：");
+                enableChoices();
+            }, 1000);
+
+            
+        }
+            
+            
+        
+
+        function enableChoices() {
+            const buttons = document.getElementsByClassName("choice-button");
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = false;
+                buttons[i].addEventListener("click", handleChoice);
+            }
+        }
+
+        function disableChoices() {
+            const buttons = document.getElementsByClassName("choice-button");
+            for (let i = 0; i < buttons.length; i++) {
+                // buttons[i].disabled = true;
+                buttons[i].removeEventListener("click", handleChoice);
+            }
+        }
+
+        function handleChoice(event) {
+            const playerChoice = parseInt(event.target.dataset.choice);
+            console.log(`あなたの選択: ${choices[playerChoice]}`);
+
+            disableChoices();
+
+            console.log(`コンピュータの選択: ${choices[computerChoice]}`);
+
+            const result = determineWinner(playerChoice, computerChoice);
+            console.log(`結果: ${result}`);
+
+            if (result === "あなたの勝ち") {
+                playerPoints++;
+            } else if (result === "コンピュータの勝ち") {
+                computerPoints++;
+            }
+
+            console.log(`現在のスコア - あなた: ${playerPoints}, コンピュータ: ${computerPoints}`);
+
+            if (currentSet === 10) {
+                console.log("ゲーム終了！最終スコア:");
+                console.log(`あなた: ${playerPoints}, コンピュータ: ${computerPoints}`);
+            } else {
+                currentSet++;
+                setTimeout(playGame, 2000);
+            }
+        }
+
+        function getRandomChoice() {
+            return Math.floor(Math.random() * 3);
+        }
+
+        function determineWinner(playerChoice, computerChoice) {
+            if (playerChoice === computerChoice) {
+                return "引き分け";
+            } else if (
+                (playerChoice === 0 && computerChoice === 1) ||
+                (playerChoice === 1 && computerChoice === 2) ||
+                (playerChoice === 2 && computerChoice === 0)
+            ) {
+                return "あなたの勝ち";
+            } else {
+                return "コンピュータの勝ち";
+            }
+        }
+
+        
+
+
+
+
     </script>
 
 </head>
 
 <body>
-    <h1>isapp3</h1>
-    <div style="text-align: right;">
-        ようこそ<span id="lastname"></span> <span id="firstname"></span>さん
-        <a href="javascript:logout()">logout</a>
-    </div>
-    <hr>
+
     <div>
-        <a href="robby.html">robbyへ</a>
+        <h1>後だしじゃんけんゲーム</h1>
+        <button id="start-button">ゲームスタート</button>
+
+        <button class="choice-button" data-choice="0">グー</button>
+        <button class="choice-button" data-choice="1">チョキ</button>
+        <button class="choice-button" data-choice="2">パー</button>
+
     </div>
+    
 </body>
 
 </html>
