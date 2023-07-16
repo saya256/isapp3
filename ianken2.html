@@ -6,10 +6,20 @@
 
     <script type="text/javascript" src="lib/jquery.min.js"></script>
     <script type="text/javascript" src="lib/osql.js"></script>
+    <style>
+        .hand-image {
+            height: 150px;
+        }
+    </style>
 
     <script>
         var me;
         const choices = ["グー", "チョキ", "パー"];
+        const handImages = [
+            "gu.png",
+            "tyoki.png",
+            "pa.png"
+        ];
         let playerPoints = 0;
         let computerPoints = 0;
         let currentSet = 1;
@@ -24,8 +34,25 @@
             displayMessage("=== 後だしじゃんけんゲーム ===");
             displayMessage(`セット ${currentSet}`);
 
-            displayMessage("コンピュータが手を出しています...");
+            displayMessage("コンピュータが手");
             computerChoice = getRandomChoice();
+            if (computerChoice == 0) {
+                computermessage = 'グー'
+                displayImage("gu.jpg", "手の画像");
+
+            } else if (computerChoice == 1) {
+                computermessage = 'チョキ'
+                displayImage("tyoki.jpg", "手の画像");
+
+            }
+            else if (computerChoice == 2) {
+                computermessage = 'パー'
+                displayImage("pa.jpg", "手の画像");
+
+            }
+            displayMessage(`${computermessage}`);
+        
+
 
             setTimeout(() => {
                 displayMessage("あなたの番です！じゃんけんの手を選んでください：");
@@ -49,7 +76,7 @@
             displayMessage(`コンピュータの選択: ${choices[computerChoice]}`);
 
             const result = determineWinner(playerChoice, computerChoice);
-            displayMessage(`結果: ${result}`);
+            displayResult(result);
 
             if (result === "あなたの勝ち") {
                 playerPoints++;
@@ -98,6 +125,21 @@
             const messageElement = document.createElement("p");
             messageElement.textContent = message;
             document.getElementById("game-messages").appendChild(messageElement);
+        }
+
+        function displayImage(imageSrc, altText) {
+            const imageElement = document.createElement("img");
+            imageElement.src = imageSrc;
+            imageElement.alt = altText;
+            imageElement.classList.add("hand-image");
+            document.getElementById("game-messages").appendChild(imageElement);
+        }
+
+
+        function displayResult(result) {
+            const resultElement = document.createElement("p");
+            resultElement.textContent = `結果: ${result}`;
+            document.getElementById("game-messages").appendChild(resultElement);
         }
 
         function displayScore() {
