@@ -36,6 +36,7 @@
         }
 
         function Choices() {
+            // ユーザに手を選んでもらう
             const buttons = document.getElementsByClassName("choice-button");
             for (let i = 0; i < buttons.length; i++) {
                 buttons[i].disabled = false;
@@ -45,10 +46,10 @@
 
 
         function handleChoice(event) {
+            // 勝敗をつける
             const playerChoice = parseInt(event.target.dataset.choice);
             console.log(`あなたの選択: ${choices[playerChoice]}`);
 
-            disableChoices();
 
             console.log(`コンピュータの選択: ${choices[computerChoice]}`);
 
@@ -73,6 +74,7 @@
         }
 
         function getRandomChoice() {
+            // コンピュータの手
             return Math.floor(Math.random() * 3);
         }
 
