@@ -10,7 +10,12 @@
         .hand-image {
             height: 150px;
         }
-    </style>
+   
+    
+
+      
+
+   </style>
 
     <script>
         var me;
@@ -20,42 +25,46 @@
             "tyoki.png",
             "pa.png"
         ];
+
         let playerPoints = 0;
         let computerPoints = 0;
         let currentSet = 1;
         let computerChoice;
 
+        let messageElement; // グローバルスコープでmessageElementを宣言
+
         function startGame() {
             document.getElementById("start-button").disabled = true;
             playGame();
+            messageElement = document.createElement("div"); // グローバルスコープのmessageElementを代入
+            messageElement.classList.add("message");
+            document.getElementById("game-messages").appendChild(messageElement);
         }
 
-        function playGame() {
-            displayMessage("=== 後だしじゃんけんゲーム ===");
-            displayMessage('セット ${currentSet}');
 
-            displayMessage("コンピュータが手");
+
+        function playGame() {
+            updateMessage(`セット ${currentSet}`);
+
+            updateMessage("コンピュータ");
             computerChoice = getRandomChoice();
             if (computerChoice == 0) {
                 computermessage = 'グー'
-                displayImage("gu.jpg", "手の画像");
+                displayImage("gu.png", "手の画像");
 
             } else if (computerChoice == 1) {
                 computermessage = 'チョキ'
-                displayImage("tyoki.jpg", "手の画像");
+                displayImage("tyoki.png", "手の画像");
 
             }
             else if (computerChoice == 2) {
                 computermessage = 'パー'
-                displayImage("pa.jpg", "手の画像");
+                displayImage("pa.png", "手の画像");
 
             }
-            displayMessage(`${computermessage}`);
-        
-
-
+   
             setTimeout(() => {
-                displayMessage("あなたの番です！じゃんけんの手を選んでください：");
+                updateMessage("あなたの番です！じゃんけんの手を選んでください：");
                 enableChoices();
             }, 1000);
         }
@@ -70,10 +79,10 @@
 
         function handleChoice(event) {
             const playerChoice = parseInt(event.target.dataset.choice);
-            displayMessage(`あなたの選択: ${choices[playerChoice]}`);
+            updateMessage(`あなたの選択: ${choices[playerChoice]}`);
             disableChoices();
 
-            displayMessage(`コンピュータの選択: ${choices[computerChoice]}`);
+            updateMessage(`コンピュータの選択: ${choices[computerChoice]}`);
 
             const result = determineWinner(playerChoice, computerChoice);
             displayResult(result);
@@ -87,8 +96,8 @@
             displayScore();
 
             if (currentSet === 10) {
-                displayMessage("ゲーム終了！最終スコア:");
-                displayMessage(`あなた: ${playerPoints}, コンピュータ: ${computerPoints}`);
+                updateMessage("ゲーム終了！最終スコア:");
+                updateMessage(`あなた: ${playerPoints}, コンピュータ: ${computerPoints}`);
             } else {
                 currentSet++;
                 setTimeout(playGame, 2000);
@@ -120,12 +129,9 @@
                 buttons[i].removeEventListener("click", handleChoice);
             }
         }
+        
 
-        function displayMessage(message) {
-            const messageElement = document.createElement("p");
-            messageElement.textContent = message;
-            document.getElementById("game-messages").appendChild(messageElement);
-        }
+ 
 
         function displayImage(imageSrc, altText) {
             const imageElement = document.createElement("img");
@@ -145,6 +151,11 @@
         function displayScore() {
             document.getElementById("score").textContent = `現在のスコア - あなた: ${playerPoints}, コンピュータ: ${computerPoints}`;
         }
+        function updateMessage(message) {
+            const element = document.getElementById("mess");
+            messageElement.textContent = message;
+            
+        }
     </script>
 </head>
 
@@ -157,6 +168,10 @@
         <button class="choice-button" data-choice="0">グー</button>
         <button class="choice-button" data-choice="1">チョキ</button>
         <button class="choice-button" data-choice="2">パー</button>
+        <div id="mess">初期のテキスト</div>
+
+
+        
     </div>
 </body>
 
