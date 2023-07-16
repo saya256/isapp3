@@ -11,8 +11,6 @@
     <script>
         // osql.requireLogin();
 
-        document.getElementById("start-button").addEventListener("click", startGame);
-
         var me;
         const choices = ["グー", "チョキ", "パー"];
         let playerPoints = 0;
@@ -33,16 +31,11 @@
 
             setTimeout(() => {
                 console.log("あなたの番です！じゃんけんの手を選んでください：");
-                enableChoices();
+                Choices();
             }, 1000);
-
-            
         }
-            
-            
-        
 
-        function enableChoices() {
+        function Choices() {
             const buttons = document.getElementsByClassName("choice-button");
             for (let i = 0; i < buttons.length; i++) {
                 buttons[i].disabled = false;
@@ -50,13 +43,6 @@
             }
         }
 
-        function disableChoices() {
-            const buttons = document.getElementsByClassName("choice-button");
-            for (let i = 0; i < buttons.length; i++) {
-                // buttons[i].disabled = true;
-                buttons[i].removeEventListener("click", handleChoice);
-            }
-        }
 
         function handleChoice(event) {
             const playerChoice = parseInt(event.target.dataset.choice);
@@ -103,7 +89,7 @@
                 return "コンピュータの勝ち";
             }
         }
-
+        
         
 
 
@@ -117,7 +103,7 @@
 
     <div>
         <h1>後だしじゃんけんゲーム</h1>
-        <button id="start-button">ゲームスタート</button>
+        <button id="start-button" onclick="startGame()">ゲームスタート</button>
 
         <button class="choice-button" data-choice="0">グー</button>
         <button class="choice-button" data-choice="1">チョキ</button>
