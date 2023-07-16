@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html>
 
 <head>
@@ -9,13 +8,12 @@
     <script type="text/javascript" src="lib/osql.js"></script>
 
     <script>
-        // osql.requireLogin();
-
         var me;
         const choices = ["グー", "チョキ", "パー"];
         let playerPoints = 0;
         let computerPoints = 0;
         let currentSet = 1;
+        let computerChoice;
 
         function startGame() {
             document.getElementById("start-button").disabled = true;
@@ -23,20 +21,19 @@
         }
 
         function playGame() {
-            console.log("=== 後だしじゃんけんゲーム ===");
-            console.log(`セット ${currentSet}`);
+            displayMessage("=== 後だしじゃんけんゲーム ===");
+            displayMessage(`セット ${currentSet}`);
 
-            console.log("コンピュータが手を出しています...");
-            const computerChoice = getRandomChoice();
+            displayMessage("コンピュータが手を出しています...");
+            computerChoice = getRandomChoice();
 
             setTimeout(() => {
-                console.log("あなたの番です！じゃんけんの手を選んでください：");
-                Choices();
+                displayMessage("あなたの番です！じゃんけんの手を選んでください：");
+                enableChoices();
             }, 1000);
         }
 
-        function Choices() {
-            // ユーザに手を選んでもらう
+        function enableChoices() {
             const buttons = document.getElementsByClassName("choice-button");
             for (let i = 0; i < buttons.length; i++) {
                 buttons[i].disabled = false;
@@ -44,17 +41,15 @@
             }
         }
 
-
         function handleChoice(event) {
-            // 勝敗をつける
             const playerChoice = parseInt(event.target.dataset.choice);
-            console.log(`あなたの選択: ${choices[playerChoice]}`);
+            displayMessage(`あなたの選択: ${choices[playerChoice]}`);
+            disableChoices();
 
-
-            console.log(`コンピュータの選択: ${choices[computerChoice]}`);
+            displayMessage(`コンピュータの選択: ${choices[computerChoice]}`);
 
             const result = determineWinner(playerChoice, computerChoice);
-            console.log(`結果: ${result}`);
+            displayMessage(`結果: ${result}`);
 
             if (result === "あなたの勝ち") {
                 playerPoints++;
@@ -62,11 +57,11 @@
                 computerPoints++;
             }
 
-             console.log(`現在のスコア - あなた: ${playerPoints}, コンピュータ: ${computerPoints}`);
+            displayScore();
 
-             if (currentSet === 10) {
-                console.log("ゲーム終了！最終スコア:");
-                console.log(`あなた: ${playerPoints}, コンピュータ: ${computerPoints}`);
+            if (currentSet === 10) {
+                displayMessage("ゲーム終了！最終スコア:");
+                displayMessage(`あなた: ${playerPoints}, コンピュータ: ${computerPoints}`);
             } else {
                 currentSet++;
                 setTimeout(playGame, 2000);
@@ -74,7 +69,6 @@
         }
 
         function getRandomChoice() {
-            // コンピュータの手
             return Math.floor(Math.random() * 3);
         }
 
@@ -91,28 +85,37 @@
                 return "コンピュータの勝ち";
             }
         }
-        
-        
 
+        function disableChoices() {
+            const buttons = document.getElementsByClassName("choice-button");
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                buttons[i].removeEventListener("click", handleChoice);
+            }
+        }
 
+        function displayMessage(message) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = message;
+            document.getElementById("game-messages").appendChild(messageElement);
+        }
 
-
+        function displayScore() {
+            document.getElementById("score").textContent = `現在のスコア - あなた: ${playerPoints}, コンピュータ: ${computerPoints}`;
+        }
     </script>
-
 </head>
 
 <body>
-
     <div>
         <h1>後だしじゃんけんゲーム</h1>
         <button id="start-button" onclick="startGame()">ゲームスタート</button>
-
+        <div id="game-messages"></div>
+        <div id="score"></div>
         <button class="choice-button" data-choice="0">グー</button>
         <button class="choice-button" data-choice="1">チョキ</button>
         <button class="choice-button" data-choice="2">パー</button>
-
     </div>
-    <div id="comments"></div>
 </body>
 
 </html>
