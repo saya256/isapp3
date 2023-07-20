@@ -8,118 +8,303 @@
     <script type="text/javascript" src="lib/jquery.min.js"></script>
     <script type="text/javascript" src="lib/osql.js"></script>
 
+    <style>
+        body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    #game{
+        text-align: center;
+        background-color: #f0f0f0;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        width: 850px;
+        height: 600px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        
+    }
+   
+    input[type="text"] {
+        width: 100px;
+    }
+    .hidden {
+        display: none;
+    }
+    .hidden-text {
+        display: none;
+    }
+    </style>
     
 
     <script>
         osql.requireLogin();
 
-        var me;
-        return new Promise((resolve, reject) => {
-            const buttons = document.getElementsByClassName("choice-button");
-    
-            // ボタンがクリックされた時の処理
-            const handleClick = (event) => {
-                const userChoice = parseInt(event.target.dataset.choice);
-                resolve(userChoice);
-            };
-
-            // ボタンにイベントリスナーを追加
-            for (let i = 0; i < buttons.length; i++) {
-                buttons[i].addEventListener("click", handleClick);
-            }
-        });
+        let RankA;
+        let RankB;
+        let RankC;
+        let Rank = RankA;
+        let Max;
+        let HintNum;
+        let Qmessage;
+        let Hmessage;
 
 
-        function getComputerChoice() {
-            return Math.floor(Math.random() * 3);
+        function processInput() {
+            const playerInput = document.getElementById('player');
+            const scoreInput = document.getElementById('score');
+            const playerNum = parseInt(playerInput.value);
+            const score = parseInt(scoreInput.value); 
+            Max = playerNum*3;
+            Rank =  (score/Max)*100;
+            updateMessage(getRankMessage(Rank));
+            const questionbutton= document.getElementById('question-button');
+            questionbutton.style.display = "block";
+
+            playerInput.classList.add('hidden');
+            scoreInput.classList.add('hidden');
+            document.getElementById('player-text').classList.add('hidden-text');
+            document.getElementById('score-text').classList.add('hidden-text');
+            document.getElementById('input-button').classList.add('hidden');
         }
-
-        function determineWinner(userChoice, computerChoice) {
-            if (userChoice === computerChoice) {
-                return "引き分け";
-            } else if ((userChoice === 0 && computerChoice === 1) || 
-                    (userChoice === 1 && computerChoice === 2) || 
-                    (userChoice === 2 && computerChoice === 0)) {
-                return "あなたの勝ち";
+        function getRankMessage(Rank) {
+            if (Rank >= 80) {
+                Rank = 'RankA';
+                return "RankA";
+            } else if (Rank >= 60) {
+                Rank = 'RankB';
+                return "RankB";
             } else {
-                return "コンピュータの勝ち";
+                Rank = 'RankC';
+                return "RankC";
             }
         }
 
-        function updateResult(result) {
-            const resultElement = document.getElementById("result");
-            resultElement.textContent = "結果: " + result;
+        function updateMessage(message) {
+            const messageElement= document.getElementById("mess");
+            const messageElement2= document.getElementById("mess2");
+            messageElement.textContent = `あなたのチームのランクは ${message}です`; 
+            if (message == 'RankA'){
+                HintNum =3;
+            } else if (message == 'RankB') {
+                HintNum =2;
+            }    else {
+                HintNum =1;
+            }
+            messageElement2.textContent = `Getできるヒントは ${HintNum}つです`; 
+        }
+        function showQuestion() {
+            mess.classList.add('hidden');
+            mess2.classList.add('hidden');
+            document.getElementById('mess').classList.add('hidden-text');
+            document.getElementById('mess2').classList.add('hidden-text');
+
+            doSelect(getRankMessage(Rank));
+
+            const questionButton = document.getElementById('question-button');
+            questionButton.style.display = "none";
+
+            const questionContainer = document.getElementById('question-container');
+            const hintContainer = document.getElementById('hint-container');
+            questionContainer.style.display = "block";
+            hintContainer.style.display = "block";
         }
 
-        function playAgain() {
-            return new Promise((resolve, reject) => {
-                const playAgainButton = document.getElementById("play-again");
-    
-            // 再プレイボタンがクリックされた時の処理
-            const handleClick = () => {
-                resolve();
-            };
+        async function doSelect(Rank) {
 
-            // ボタンにイベントリスナーを追加
-            playAgainButton.addEventListener("click", handleClick);
-            });
+            var sql = 'select * from Quiz where Quiz.id = 1';
+            var objects = await osql.connect(sql);
+            console.log(objects);
+            var html = '';
+            html = html + '<table border = "0">';
+            for (var i = 0; i < objects.length; i++) {
+                var object = objects[i];
+                html = html + '<tr>';
+                html = html + '<td>' + object.Question + '</td>';
+                html = html + '</tr>';
+            }
+            html = html + '</table>';
+            document.getElementById('result2').innerHTML = html;
+
+            if (Rank == 'RankA') {
+                doSelectA();
+            }
+            else if (Rank == 'RankB') {
+                doSelectB();
+            }
+            else if (Rank == 'RankC') {
+                doSelectC();
+            }
+        }
+     
+
+        async function doSelectA() {
+            var sql = 'select * from Quiz where Quiz.id = 1';
+            var objects = await osql.connect(sql);
+            console.log(objects);
+            var html = '';
+            html = html + '<table border = "0">';
+            for (var i = 0; i < objects.length; i++) {
+                var object = objects[i];
+                html = html + '<tr>';
+                html = html + '<td>' + 'ヒント１：' + object.Hint1 + '</td>';
+                html = html + '<tr>';
+                html = html + '<td>' + 'ヒント２：' + object.Hint2 + '</td>';
+                html = html + '<tr>';
+                html = html + '<td>' + 'ヒント３：' + object.Hint3 + '</td>';
+                html = html + '</tr>';
+            }
+            html = html + '</table>';
+            document.getElementById('result3').innerHTML = html;
         }
 
-        async function main() {
-            alert("=== じゃんけんゲーム ===");
+        async function doSelectB() {
+            var sql = 'select * from Quiz where Quiz.id = 1';
+            var objects = await osql.connect(sql);
+            console.log(objects);
+            var html = '';
+            html = html + '<table border = "0">';
+            for (var i = 0; i < objects.length; i++) {
+                var object = objects[i];
+                html = html + '<tr>';
+                html = html + '<td>' + 'ヒント１：' + object.Hint1 + '</td>';
+                html = html + '<tr>';
+                html = html + '<td>' + 'ヒント２：' + object.Hint2 + '</td>';
+                html = html + '</tr>';
+            }
+            html = html + '</table>';
+            document.getElementById('result3').innerHTML = html;
+        }
 
-            while (true) {
-                // ユーザーの選択を待機
-                const userChoice = await getUserChoice();
+        async function doSelectC() {
+            var sql = 'select * from Quiz where Quiz.id = 1';
+            var objects = await osql.connect(sql);
+            console.log(objects);
+            var html = '';
+            html = html + '<table border = "0">';
+            for (var i = 0; i < objects.length; i++) {
+                var object = objects[i];
+                html = html + '<tr>';
+                html = html + '<td>' + 'ヒント１：' + object.Hint1 + '</td>';
+                html = html + '<tr>';
+            }
+            html = html + '</table>';
+            document.getElementById('result3').innerHTML = html;
+        }
 
-                // コンピュータの選択を取得
-                const computerChoice = getComputerChoice();
+        window.onload = function(){
+            var start = document.getElementById('start');
+            start.addEventListener('click',count_start, false);
 
-                alert("あなたの選択: " + userChoice);
-                alert("コンピュータの選択: " + computerChoice);
+            var stop = document.getElementById("stop");
+            stop.addEventListener("click",count_stop, false);
+        }
+        var count   = 180;     //カウントダウンの数字を格納する変数  3分なので180
+        var min     = 0;       //残り時間「分」を格納する変数
+        var sec     = 0;       //残り時間「秒」を格納する変数
+        var start_f = false; 
+        var interval;    
 
-                // 勝敗を判定
-                const result = determineWinner(userChoice, computerChoice);
-                alert("結果: " + result);
-                updateResult(result);
-
-                // 再プレイするか確認
-                await playAgain();
-                const resultElement = document.getElementById("result");
-                resultElement.textContent = "";
-
-                // ボタンのイベントリスナーを削除
-                const buttons = document.getElementsByClassName("choice-button");
-                for (let i = 0; i < buttons.length; i++) {
-                    buttons[i].removeEventListener("click", handleClick);
-                }
+        function count_start(){
+            //0041------------二度押しを防止する
+            if (start_f === false) {
+            //0042------------1秒毎にcont_down関数を呼び出す
+            interval = setInterval(count_down,1000);
+            start_f = true;
             }
         }
 
-main();
+        //005------------カウントダウンの開始---------------------------------------------
+        function count_down(){
+    //006--------------------------------------------------------------------------
+            if(count === 1){
+                var display = document.getElementById("default");
+                display.style.color = 'red';
+                display.innerHTML = "TIME UP!";
+                clearInterval(interval);
+    //007-------------------------------------------------------------------------
+            } else {
+    //008-------------------------------------------------------------------------
+                count--;
+    //009----------Math.floor関数を使って小数点になった分を整数に変換する。---------------
+                min = Math.floor(count / 60);
+    //010------------60秒で割ったあまりが秒となる-------------------------------------
+                sec = count % 60;
+                var count_down = document.getElementById("default");
+                count_down.innerHTML = ("0"+min) +"：" + ("0"+sec).slice(-2);
+            }
+        }
+        function count_stop(){
+            doAnswer();
+        }
+
+        async function doAnswer() {
+            var sql = 'select * from Quiz where Quiz.id = 1';
+            var objects = await osql.connect(sql);
+            console.log(objects);
+            var html = '';
+            html = html + '<table border = "0">';
+            for (var i = 0; i < objects.length; i++) {
+                var object = objects[i];
+                html = html + '<tr>';
+                html = html + '<td>' + 'Answer：' + object.Answer + '</td>';
+                html = html + '<tr>';
+            }
+            html = html + '</table>';
+            document.getElementById('result4').innerHTML = html;
+        }
 
 
-    
-
-
-
-        
 
     </script>
 
 </head>
 
 <body>
-<button class="choice-button" data-choice="0">グー</button>
-<button class="choice-button" data-choice="1">チョキ</button>
-<button class="choice-button" data-choice="2">パー</button>
-<p id="result"></p>
-<button id="play-again">もう一度プレイする</button>
+    <div id ='game'>
+        <h3 id="player-text" >チームのプレイヤー人数：</h3>
+        <input id="player" type="text">
+        <h3 id="score-text" >チームの合計点数：</h3>
+        <input id="score" type="text"><br>
+        <div  id = 'input-button'style="text-align: right;">
+            <button onclick="processInput()">入力!</button>
+        </div>
+        <div id="mess" ></div>
+        <div id="mess2" ></div>
+
+        <div id="question-button" style="display: none;" >
+            <br>
+            <button onclick="showQuestion()">問題へ</button>
+        </div>
+
+        <div id ="question-container" style="display: none;">
+            <h2>Quiz:</h2>
+            <p id="result2">xxxx</p>
+        </div>
+        <div id="hint-container" style="display: none;">
+            <h2>Hint:</h2>
+            <p id="result3">xxxx</p>
+        </div>
+        <div id="discussioBtn-container" style="display: none;">
+            <p id="default">03：00</p>
+            <button id="start">話し合いを開始する</button>
+        </div>
+        <p id="default">03：00</p>
+        <button id="start" onclick="count_start()">話し合いを開始する</button>
+        <button id="stop">答えを表示する</button>
+        <p id="result4"></p>
+        
+        
+    </div>
 
 </body>
 
 </html>
-
-
-
-

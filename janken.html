@@ -1,42 +1,122 @@
 <!DOCTYPE html>
-
 <html>
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
     <script type="text/javascript" src="lib/jquery.min.js"></script>
     <script type="text/javascript" src="lib/osql.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game{
+            text-align: center;
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        .hand-image {
+            height: 150px;
+        }
+        .start-image {
+            height: 100px; /* 画像の高さを調整 */
+            width: auto; /* 幅を自動調整 (アスペクト比を維持) */
+            display: block; /* 画像をブロック要素として扱う (余白を調整するため) */
+            margin: 0 auto; /* 左右の余白を自動調整 (中央揃え) */
+            }
+
+        #gu-button {
+            background-color: #3498db; 
+            color: #fff;
+        }
+        #tyo-button {
+            background-color: #fc2441; 
+            color: #fff;
+        }
+        #pa-button{
+            background-color: #2ec42e; 
+            color: #fff;
+        }
+        #result-container {
+            position: absolute;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            width: 500px;
+            transform: translate(-50%, -50%);
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        #result-container p {
+            font-size: 24px;
+            margin-bottom: 10px;
+            
+        }
+
+
+   </style>
 
     <script>
-        // osql.requireLogin();
-
         var me;
         const choices = ["グー", "チョキ", "パー"];
-        let playerPoints = 0;
+        const handImages = [
+            "gu.png",
+            "tyoki.png",
+            "pa.png"
+        ];
+
+        let userPoints = 0;
         let computerPoints = 0;
         let currentSet = 1;
+        let computerChoice;
+        let messageElement; 
+        let answerTimer;
 
         function startGame() {
             document.getElementById("start-button").disabled = true;
             playGame();
+            messageElement = document.createElement("div"); 
+            messageElement.classList.add("message");
+            document.getElementById("game-messages").appendChild(messageElement);
         }
 
         function playGame() {
-            console.log("=== 後だしじゃんけんゲーム ===");
-            console.log(`セット ${currentSet}`);
+            updateMessage(`セット ${currentSet}`);
 
-            console.log("コンピュータが手を出しています...");
-            const computerChoice = getRandomChoice();
+            updateMessage("コンピュータ");
+            computerChoice = getRandomChoice();
+            if (computerChoice == 0) {
+                computermessage = 'グー'
+                displayImage("gu.png", "手の画像");
 
-            setTimeout(() => {
-                console.log("あなたの番です！じゃんけんの手を選んでください：");
-                Choices();
-            }, 1000);
+            } else if (computerChoice == 1) {
+                computermessage = 'チョキ'
+                displayImage("tyoki.png", "手の画像");
+
+            }
+            else if (computerChoice == 2) {
+                computermessage = 'パー'
+                displayImage("pa.png", "手の画像");
+
+            }
+            answerTimer = setTimeout(handleChoiceTimeout, 1000);
+
+            updateMessage("あなたの番です！じゃんけんの手を選んでください：");
+            enableChoices();
         }
 
-        function Choices() {
-            // ユーザに手を選んでもらう
+        function enableChoices() {
             const buttons = document.getElementsByClassName("choice-button");
             for (let i = 0; i < buttons.length; i++) {
                 buttons[i].disabled = false;
@@ -44,75 +124,135 @@
             }
         }
 
-
         function handleChoice(event) {
-            // 勝敗をつける
+            clearTimeout(answerTimer);
             const playerChoice = parseInt(event.target.dataset.choice);
-            console.log(`あなたの選択: ${choices[playerChoice]}`);
+            updateMessage(`あなたの選択: ${choices[playerChoice]}`);
+            disableChoices();
 
-
-            console.log(`コンピュータの選択: ${choices[computerChoice]}`);
+            updateMessage(`コンピュータの選択: ${choices[computerChoice]}`);
 
             const result = determineWinner(playerChoice, computerChoice);
-            console.log(`結果: ${result}`);
+            displayResult(result);
 
             if (result === "あなたの勝ち") {
-                playerPoints++;
-            } else if (result === "コンピュータの勝ち") {
-                computerPoints++;
+                userPoints++;
             }
 
-             console.log(`現在のスコア - あなた: ${playerPoints}, コンピュータ: ${computerPoints}`);
-
-             if (currentSet === 10) {
-                console.log("ゲーム終了！最終スコア:");
-                console.log(`あなた: ${playerPoints}, コンピュータ: ${computerPoints}`);
+            
+          
+            if (currentSet === 3) {
+                showResult();
             } else {
                 currentSet++;
-                setTimeout(playGame, 2000);
+                setTimeout(playGame, 1500);
             }
+
+       
         }
 
+        function handleChoiceTimeout() {
+            result ="残念! 時間切れのため負けです"
+            displayResult(result);
+            
+            // コンピュータの選択を表示
+            updateMessage(`コンピュータの選択: ${choices[computerChoice]}`);
+            displayResult("結果: コンピュータの勝ち");
+
+            computerPoints++;
+
+
+            if (currentSet === 3) {
+                showResult();
+            } else {
+                currentSet++;
+                setTimeout(playGame, 1500);
+            }
+        }
         function getRandomChoice() {
-            // コンピュータの手
             return Math.floor(Math.random() * 3);
         }
 
         function determineWinner(playerChoice, computerChoice) {
             if (playerChoice === computerChoice) {
-                return "引き分け";
+                return "結果: 引き分け";
+                
             } else if (
                 (playerChoice === 0 && computerChoice === 1) ||
                 (playerChoice === 1 && computerChoice === 2) ||
                 (playerChoice === 2 && computerChoice === 0)
             ) {
-                return "あなたの勝ち";
+                userPoints++;
+                return "結果: あなたの勝ち";
             } else {
-                return "コンピュータの勝ち";
+                return "結果: コンピュータの勝ち";
+            }
+        }
+
+        function disableChoices() {
+            const buttons = document.getElementsByClassName("choice-button");
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                buttons[i].removeEventListener("click", handleChoice);
             }
         }
         
-        
+        function displayImage(imageSrc, altText) {
+            const imageElement = document.createElement("img");
+            imageElement.src = imageSrc;
+            imageElement.alt = altText;
+            imageElement.classList.add("hand-image");
+            document.getElementById("game-messages").appendChild(imageElement);
+        }
 
 
+        function displayResult(result) {
+            const resultElement = document.createElement("p");
+            resultElement.textContent = ` ${result}`;
+            document.getElementById("game-messages").appendChild(resultElement);
+        }
 
+        function updateMessage(message) {
+            const messageElement= document.getElementById("mess");
+            messageElement.textContent = message;
+            
+        }
+        function showResult() {
+            const resultContainer = document.getElementById("result-container");
+            const resultMessage = document.createElement("p");
+            
+            resultMessage.textContent = `${userPoints}ポイントGet!!`;
+            resultContainer.appendChild(resultMessage);
+            resultContainer.style.display = "block"; // 結果表示を表示
+        }
 
     </script>
-
 </head>
 
 <body>
 
-    <div>
+    <div id = "game">
         <h1>後だしじゃんけんゲーム</h1>
-        <button id="start-button" onclick="startGame()">ゲームスタート</button>
-
-        <button class="choice-button" data-choice="0">グー</button>
-        <button class="choice-button" data-choice="1">チョキ</button>
-        <button class="choice-button" data-choice="2">パー</button>
-
+        <div style="text-align: right;">
+            <a href="index.html">top</a>
+        </div>
+        <button id="start-button" onclick="startGame()">
+            <img src="GameStart.png"  class="start-image">
+        </button>
+        <div id="game-messages"></div>
+        <div id="score"></div>
+        
+        <button class="choice-button" id ="gu-button" data-choice="0">グー</button>
+        <button class="choice-button" id ="tyo-button"data-choice="1">チョキ</button>
+        <button class="choice-button" id ="pa-button"data-choice="2">パー</button>
+        <div id="mess"></div>
     </div>
-    <div id="comments"></div>
+        
+ 
+    <div id="result-container">
+        <img src="Finish.png" >
+        <a href="Quiz.html">Go!!!!!</a>
+    </div>
 </body>
 
 </html>
