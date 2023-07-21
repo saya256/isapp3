@@ -56,20 +56,38 @@
     #b-button{
         padding: 10px 20px; /* 上下左右に余白を設定 */
         font-size: 16px; /* フォントサイズを指定 */
-        background-color: #51a6df; /* 背景色を指定 */
+        background-color: #3498db;/* 背景色を指定 */
         color: #fff; /* テキストカラーを指定 */
         border: none; /* ボーダーをなしに設定 */
         border-radius: 5px; /* ボーダーの角を丸くする */
         cursor: pointer; /* マウスをボタンの上に置いたときのカーソルを指定 */
     }
+    #b-button:hover {
+        background-color: #2980b9;
+    }
     #result4{
         font-size: 30px;
         font-weight: bold;
-        background-color: #51a6df;
-        color: #fff;
+        color:  #51a6df;
+        border: 5px solid #51a6df; /* 枠線の太さと色を指定 */
+        padding: 10px; /* 枠線とコンテンツの間のスペースを指定 */
     }
 
-
+    #timer {
+        font-size: 48px;
+        font-weight: bold;
+        background-color:#6a767f; 
+        color: #fff; 
+        padding: 10px;
+        /* border-radius: 5px;*/
+        animation: pulse 1s infinite; 
+    }
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
     .hidden {
         display: none;
     }
@@ -240,6 +258,7 @@
         function startTimer(duration) {
             let seconds = duration;
             const timerElement = document.getElementById("timer");
+            timerElement.style.display = "block";
             timer = setInterval(function () {
                 if (seconds <= 0) {
                     clearInterval(timer);
@@ -261,6 +280,8 @@
         async function showAnswer() {
             const questionButton = document.getElementById('timer-container');
             questionButton.style.display = "none";
+            const resultContainer = document.getElementById('result4');
+            resultContainer.style.display = "block";
             var sql = 'select * from Quiz where Quiz.id = 1';
             var objects = await osql.connect(sql);
             console.log(objects);
@@ -274,6 +295,9 @@
             }
             html = html + '</table>';
             document.getElementById('result4').innerHTML = html;
+
+            
+
         }
 
               
@@ -291,7 +315,7 @@
         <h3 id="score-text" >チームの合計点数：</h3>
         <input id="score" type="text"><br>
         <div  id = 'input-button'style="text-align: right;">
-            <button onclick="processInput()" id='b-button'>入力!</button>
+            <button onclick="processInput()" id='b-button'>次へ!</button>
         </div>
     
         <div id="mess" ></div>
@@ -302,6 +326,11 @@
             <br>
             <button onclick="showQuestion()" id ="b-button">問題へ</button>
         </div>
+        <div id="timer-container" >
+            <br>
+            <span id="timer">残り時間: 00:20</span>
+            <br>
+        </div>
 
         <div id ="question-container" style="display: none;">
             <h2>Quiz:</h2>
@@ -311,11 +340,9 @@
             <h2>Hint:</h2>
             <p id="result3">xxxx</p>
         </div>
-        <div id="timer-container" >
-            <span id="timer">残り時間: 00:20</span>
-        </div>
+        
         <div id="answer"></div>
-        <p id="result4"></p>
+        <p id="result4"style="display: none;"></p>
         
     </div>
 
