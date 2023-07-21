@@ -29,6 +29,20 @@
         .rule1 {
             padding-left: 30px;
         }
+
+        #b-button{
+            padding: 10px 20px; /* 上下左右に余白を設定 */
+            font-size: 16px; /* フォントサイズを指定 */
+            background-color: #3498db;/* 背景色を指定 */
+            color: #fff; /* テキストカラーを指定 */
+            border: none; /* ボーダーをなしに設定 */
+            border-radius: 5px; /* ボーダーの角を丸くする */
+            cursor: pointer; /* マウスをボタンの上に置いたときのカーソルを指定 */
+        }
+
+        #b-button:hover {
+            background-color: #2980b9;
+        }
     </style>
 
 </head>
@@ -53,10 +67,12 @@
         <p>1. チームの人数とスコアを入力したら、「入力」→「問題へ」を選択してください。</p>
         <p>2. 問題文とヒントが表示されます。チームで協力して、回答してください。</p>
         <p>3. 回答時間は3分間です。時間になると、自動的に回答が表示されます。</p>
+        <p></p>
+        <p></p>
     
 
         <div>
-            <a href="robby.html">robbyへ</a>
+            <a id="b-button" href="robby.html">robbyへ</a>
         </div>
     </div>
 </body>
